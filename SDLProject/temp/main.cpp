@@ -3,7 +3,7 @@
 #define LOG(argument) std::cout << argument << '\n'
 #define GL_GLEXT_PROTOTYPES 1
 #define FIXED_TIMESTEP 0.0166666f
-#define PLATFORM_COUNT 13
+#define PLATFORM_COUNT 5
 
 #ifdef _WINDOWS
 #include <GL/glew.h>
@@ -11,6 +11,7 @@
 
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include <SDL_mixer.h>
 #include "glm/mat4x4.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "ShaderProgram.h"
@@ -26,16 +27,15 @@ struct GameState
 {
     Entity* player;
     Entity* platforms;
-    Entity* end_scenes;
 };
 
 // ––––– CONSTANTS ––––– //
 const int WINDOW_WIDTH  = 640,
           WINDOW_HEIGHT = 480;
 
-const float BG_RED     = 0.86f,
-            BG_BLUE    = 0.93f,
-            BG_GREEN   = 0.95f,
+const float BG_RED     = 0.1922f,
+            BG_BLUE    = 0.549f,
+            BG_GREEN   = 0.9059f,
             BG_OPACITY = 1.0f;
 
 const int VIEWPORT_X = 0,
@@ -48,18 +48,27 @@ const char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
 
 const float MILLISECONDS_IN_SECOND = 1000.0;
 const char EAGLE_FILEPATH[] = "assets/eagle.png";
-const char CLOUD_FILEPATH[] = "assets/cloud.png";
-const char PIGEON_FILEPATH[] = "assets/dove_of_peace.png";
-
-const char WIN_FILEPATH[] ="assets/win.png";
-const char LOSE_FILEPATH[] ="assets/lose.png";
+const char PLATFORM_FILEPATH[]    = "assets/platformPack_tile027.png";
 
 const int NUMBER_OF_TEXTURES = 1;
 const GLint LEVEL_OF_DETAIL  = 0;
 const GLint TEXTURE_BORDER   = 0;
 
-const float GRAVITY = -0.4f;
+const int CD_QUAL_FREQ    = 44100,
+          AUDIO_CHAN_AMT  = 2,     // stereo
+          AUDIO_BUFF_SIZE = 4096;
 
+const char BGM_FILEPATH[] = "assets/crypto.mp3",
+           SFX_FILEPATH[] = "assets/bounce.wav";
+
+const int PLAY_ONCE = 0,    // play once, loop never
+          NEXT_CHNL = -1,   // next available channel
+          ALL_SFX_CHNL = -1;
+
+Mix_Music *g_music;
+Mix_Chunk *g_jump_sfx;
+
+const int TOTAL_FUEL = 100;
 
 // ––––– GLOBAL VARIABLES ––––– //
 GameState g_state;
@@ -72,6 +81,8 @@ glm::mat4 g_view_matrix, g_projection_matrix;
 
 float g_previous_ticks = 0.0f;
 float g_accumulator = 0.0f;
+
+int g_cur_fuel = TOTAL_FUEL;
 
 // ––––– GENERAL FUNCTIONS ––––– //
 GLuint load_texture(const char* filepath)
@@ -105,7 +116,7 @@ GLuint load_texture(const char* filepath)
 void initialise()
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    g_display_window = SDL_CreateWindow("Project3!",
+    g_display_window = SDL_CreateWindow("3_Lunar Lander",
                                       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                       WINDOW_WIDTH, WINDOW_HEIGHT,
                                       SDL_WINDOW_OPENGL);
@@ -131,113 +142,26 @@ void initialise()
     glUseProgram(g_program.get_program_id());
     
     glClearColor(BG_RED, BG_BLUE, BG_GREEN, BG_OPACITY);
-    
-    
-    // ––––– PLATFORMS ––––– //
-    GLuint platform_texture_id = load_texture(CLOUD_FILEPATH);
-    
-    g_state.platforms = new Entity[PLATFORM_COUNT];
-    
-    // Set the type of every platform entity to PLATFORM
-    for (int i = 0; i < 2; i++)
-    {
-        g_state.platforms[i].m_texture_id = platform_texture_id;
-        g_state.platforms[i].set_position(glm::vec3(i - 5.0f, -1.0f, 0.0f));
-        g_state.platforms[i].set_width(0.8f);
-        g_state.platforms[i].set_height(0.7f);
-        g_state.platforms[i].set_entity_type(PLATFORM);
-        g_state.platforms[i].update(0.0f, g_state.player, NULL, 0, NULL);
-    }
-    for (int i = 2; i < 4; i++)
-    {
-        g_state.platforms[i].m_texture_id = platform_texture_id;
-        g_state.platforms[i].set_position(glm::vec3(i - 5.0f, -2.0f, 0.0f));
-        g_state.platforms[i].set_width(0.8f);
-        g_state.platforms[i].set_height(0.7f);
-        g_state.platforms[i].set_entity_type(PLATFORM);
-        g_state.platforms[i].update(0.0f, g_state.player, NULL, 0, NULL);
-    }
-    for (int i = 4; i < 7; i++)
-    {
-        g_state.platforms[i].m_texture_id = platform_texture_id;
-        g_state.platforms[i].set_position(glm::vec3(i - 5.0f, -2.5f, 0.0f));
-        g_state.platforms[i].set_width(0.8f);
-        g_state.platforms[i].set_height(0.7f);
-        g_state.platforms[i].set_entity_type(PLATFORM);
-        g_state.platforms[i].update(0.0f, g_state.player, NULL, 0, NULL);
-    }
-    
-    for (int i = 7; i < 8; i++)
-    {
-        g_state.platforms[i].m_texture_id = platform_texture_id;
-        g_state.platforms[i].set_position(glm::vec3(i - 5.0f, -2.0f, 0.0f));
-        g_state.platforms[i].set_width(0.8f);
-        g_state.platforms[i].set_height(0.7f);
-        g_state.platforms[i].set_entity_type(PLATFORM);
-        g_state.platforms[i].update(0.0f, g_state.player, NULL, 0, NULL);
-    }
-    
-    for (int i = 8; i < PLATFORM_COUNT-3; i++)
-    {
-        g_state.platforms[i].m_texture_id = platform_texture_id;
-        g_state.platforms[i].set_position(glm::vec3(i - 5.0f, -1.0f, 0.0f));
-        g_state.platforms[i].set_width(0.8f);
-        g_state.platforms[i].set_height(0.7f);
-        g_state.platforms[i].set_entity_type(PLATFORM);
-        g_state.platforms[i].update(0.0f, g_state.player, NULL, 0, NULL);
-    }
 
-    g_state.platforms[PLATFORM_COUNT - 3].m_texture_id = platform_texture_id;
-    g_state.platforms[PLATFORM_COUNT - 3].set_position(glm::vec3(-0.9f, 1.0f, 0.0f));
-    g_state.platforms[PLATFORM_COUNT - 3].set_width(0.8f);
-    g_state.platforms[PLATFORM_COUNT - 3].set_height(0.7f);
-    g_state.platforms[PLATFORM_COUNT - 3].set_entity_type(PLATFORM);
-    g_state.platforms[PLATFORM_COUNT - 3].update(0.0f, g_state.player, NULL, 0, NULL);
     
-    g_state.platforms[PLATFORM_COUNT - 2].m_texture_id = platform_texture_id;
-    g_state.platforms[PLATFORM_COUNT - 2].set_position(glm::vec3(0.8f, 0.0f, 0.0f));
-    g_state.platforms[PLATFORM_COUNT - 2].set_width(0.8f);
-    g_state.platforms[PLATFORM_COUNT - 2].set_height(0.7f);
-    g_state.platforms[PLATFORM_COUNT - 2].set_entity_type(PLATFORM);
-    g_state.platforms[PLATFORM_COUNT - 2].update(0.0f, g_state.player, NULL, 0, NULL);
-    
-    // ————— POINT ————— //
-    g_state.platforms[PLATFORM_COUNT - 1].m_texture_id = load_texture(PIGEON_FILEPATH);
-    g_state.platforms[PLATFORM_COUNT - 1].set_position(glm::vec3(-1.5f, -2.35f, 0.0f));
-    g_state.platforms[PLATFORM_COUNT - 1].set_width(0.4f);
-    g_state.platforms[PLATFORM_COUNT - 1].set_entity_type(POINT);
-    g_state.platforms[PLATFORM_COUNT - 1].update(0.0f, g_state.player, NULL, 0, NULL);
-    
+    // ––––– SFX ––––– //
+    g_jump_sfx = Mix_LoadWAV(SFX_FILEPATH);
     
     // ––––– PLAYER ––––– //
+    // Existing
     g_state.player = new Entity();
-    g_state.player->set_position(glm::vec3(3.75f, 4.0f, 0.0f));
+    g_state.player->set_position(glm::vec3(0.0f));
     g_state.player->set_movement(glm::vec3(0.0f));
     g_state.player->set_speed(1.0f);
-    g_state.player->set_acceleration(glm::vec3(0.0f, GRAVITY, 0.0f));
+    g_state.player->set_acceleration(glm::vec3(0.0f, -4.905f, 0.0f));
     g_state.player->m_texture_id = load_texture(EAGLE_FILEPATH);
     
     g_state.player->set_height(0.9f);
     g_state.player->set_width(0.9f);
     g_state.player->set_entity_type(PLAYER);
     
-    // ————— ENDING ————— //
-    g_state.end_scenes = new Entity[2];
-    
-    // Win
-    g_state.end_scenes[0].m_texture_id = load_texture(WIN_FILEPATH);
-    g_state.end_scenes[0].set_position(glm::vec3(0.0f));
-    g_state.end_scenes[0].set_entity_type(SCENE);
-    g_state.end_scenes[0].update(0.0f, g_state.player, NULL, 0, NULL);
-    g_state.end_scenes[0].deactivate();
-    // Lose
-    g_state.end_scenes[1].m_texture_id = load_texture(LOSE_FILEPATH);
-    g_state.end_scenes[1].set_position(glm::vec3(0.0f));
-    g_state.end_scenes[1].set_entity_type(SCENE);
-    g_state.end_scenes[1].update(0.0f, g_state.player, NULL, 0, NULL);
-    g_state.end_scenes[1].deactivate();
-    
-    
+    // Jumping
+    g_state.player->m_jumping_power = 3.0f;
     
     // ––––– GENERAL ––––– //
     glEnable(GL_BLEND);
@@ -265,13 +189,29 @@ void process_input()
                         g_game_is_running = false;
                         break;
                         
-//                    case SDLK_SPACE:
-//                        // Jump
-//                        if (g_state.player->m_collided_bottom)
-//                        {
-//                            g_state.player->m_is_jumping = true;
-//                        }
-//                        break;
+                    case SDLK_w:
+                        // Jump
+                        if (g_state.player->m_collided_bottom)
+                        {
+                            g_state.player->m_is_jumping = true;
+                            Mix_PlayChannel(NEXT_CHNL, g_jump_sfx, 0);
+                            
+                            /**
+                             Mix_FadeInChannel(channel_id, sound_chunk, loops, fade_in_time);
+                             
+                             
+                             */
+                        }
+                        break;
+                        
+                        
+                    case SDLK_h:
+                        // Stop music
+                        Mix_HaltMusic();
+                        break;
+                        
+                    case SDLK_p:
+                        Mix_PlayMusic(g_music, -1);
                         
                     default:
                         break;
@@ -283,30 +223,16 @@ void process_input()
     }
     
     const Uint8 *key_state = SDL_GetKeyboardState(NULL);
-    
+
     if (key_state[SDL_SCANCODE_LEFT])
     {
         g_state.player->move_left();
+//        g_state.player->m_animation_indices = g_state.player->m_walking[g_state.player->LEFT];
     }
     else if (key_state[SDL_SCANCODE_RIGHT])
     {
         g_state.player->move_right();
-    }
-    else
-    {
-        g_state.player->stay_still_x();
-    }
-    if (key_state[SDL_SCANCODE_UP])
-    {
-        g_state.player->move_up();
-    }
-    else if (key_state[SDL_SCANCODE_DOWN])
-    {
-        g_state.player->move_down();
-    }
-    else
-    {
-        g_state.player->stay_still_y(GRAVITY);
+//        g_state.player->m_animation_indices = g_state.player->m_walking[g_state.player->RIGHT];
     }
     
     if (glm::length(g_state.player->get_movement()) > 1.0f)
@@ -335,7 +261,7 @@ void update()
     
     while (delta_time >= FIXED_TIMESTEP)
     {
-        g_state.player->update(FIXED_TIMESTEP, g_state.player, g_state.platforms, PLATFORM_COUNT, g_state.end_scenes);
+        g_state.player->update(FIXED_TIMESTEP, g_state.player, g_state.platforms, PLATFORM_COUNT);
         delta_time -= FIXED_TIMESTEP;
     }
     
@@ -349,9 +275,6 @@ void render()
     g_state.player->render(&g_program);
     
     for (int i = 0; i < PLATFORM_COUNT; i++) g_state.platforms[i].render(&g_program);
-    
-    g_state.end_scenes[0].render(&g_program);
-    g_state.end_scenes[1].render(&g_program);
     
     SDL_GL_SwapWindow(g_display_window);
 }

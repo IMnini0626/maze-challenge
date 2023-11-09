@@ -26,12 +26,12 @@ void ShaderProgram::load(const char *vertex_shader_file, const char *fragment_sh
     m_model_matrix_uniform      = glGetUniformLocation(m_program_id, "modelMatrix");
     m_projection_matrix_uniform = glGetUniformLocation(m_program_id, "projectionMatrix");
     m_view_matrix_uniform       = glGetUniformLocation(m_program_id, "viewMatrix");
-	m_colour_uniform            = glGetUniformLocation(m_program_id, "color");
+    m_colour_uniform            = glGetUniformLocation(m_program_id, "color");
     
     m_position_attribute  = glGetAttribLocation(m_program_id, "position");
     m_tex_coord_attribute = glGetAttribLocation(m_program_id, "texCoord");
-	
-	set_colour(1.0f, 1.0f, 1.0f, 1.0f);
+    
+    set_colour(1.0f, 1.0f, 1.0f, 1.0f);
     
 }
 
@@ -90,8 +90,8 @@ GLuint ShaderProgram::load_shader_from_string(const std::string &shaderContents,
 
 void ShaderProgram::set_colour(float red, float green, float blue, float alpha)
 {
-	glUseProgram(m_program_id);
-	glUniform4f(m_colour_uniform, red, green, blue, alpha);
+    glUseProgram(m_program_id);
+    glUniform4f(m_colour_uniform, red, green, blue, alpha);
 }
 
 void ShaderProgram::set_view_matrix(const glm::mat4 &matrix)
@@ -109,5 +109,5 @@ void ShaderProgram::set_model_matrix(const glm::mat4 &matrix)
 void ShaderProgram::set_projection_matrix(const glm::mat4 &matrix)
 {
     glUseProgram(m_program_id);
-    glUniformMatrix4fv(m_projection_matrix_uniform, 1, GL_FALSE, &matrix[0][0]);    
+    glUniformMatrix4fv(m_projection_matrix_uniform, 1, GL_FALSE, &matrix[0][0]);
 }
