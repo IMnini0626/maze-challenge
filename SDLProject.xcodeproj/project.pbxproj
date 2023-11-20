@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4D762C112B093402005AE485 /* Map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D762C0F2B093402005AE485 /* Map.cpp */; };
 		4DE4A28B2AF948FE00047642 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DE4A28A2AF948FE00047642 /* Entity.cpp */; };
 		4DE4A28D2AFAB07E00047642 /* assets in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4DE4A28C2AFAB07E00047642 /* assets */; };
 		DBDF1B532323DE3F007CECB1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DBDF1B522323DE3F007CECB1 /* main.cpp */; };
@@ -34,6 +35,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4D762C0F2B093402005AE485 /* Map.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Map.cpp; sourceTree = "<group>"; };
+		4D762C122B093442005AE485 /* Map.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
 		4DE4A2872AF948E800047642 /* Entity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Entity.h; sourceTree = "<group>"; };
 		4DE4A28A2AF948FE00047642 /* Entity.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Entity.cpp; sourceTree = "<group>"; };
 		4DE4A28C2AFAB07E00047642 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = "<group>"; };
@@ -96,6 +99,8 @@
 				DBDF1B522323DE3F007CECB1 /* main.cpp */,
 				4DE4A2872AF948E800047642 /* Entity.h */,
 				4DE4A28A2AF948FE00047642 /* Entity.cpp */,
+				4D762C0F2B093402005AE485 /* Map.cpp */,
+				4D762C122B093442005AE485 /* Map.h */,
 			);
 			path = SDLProject;
 			sourceTree = "<group>";
@@ -170,6 +175,7 @@
 			files = (
 				DBDF1B532323DE3F007CECB1 /* main.cpp in Sources */,
 				4DE4A28B2AF948FE00047642 /* Entity.cpp in Sources */,
+				4D762C112B093402005AE485 /* Map.cpp in Sources */,
 				DBDF1B5E2323DE8D007CECB1 /* ShaderProgram.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
