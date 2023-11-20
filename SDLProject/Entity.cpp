@@ -1,3 +1,13 @@
+/**
+* Author: Yini Zhang
+* Assignment: Rise of the AI
+* Date due: 2023-11-18, 11:59pm
+* I pledge that I have completed this assignment without
+* collaborating with anyone else, in conformance with the
+* NYU School of Engineering Policies and Procedures on
+* Academic Misconduct.
+**/
+
 #define GL_SILENCE_DEPRECATION
 #define STB_IMAGE_IMPLEMENTATION
 #define LOG(argument) std::cout << argument << '\n'
@@ -97,11 +107,11 @@ void Entity::ai_activate(Entity* player)
 
 void Entity::ai_walk()
 {
-    if (m_collided_right_bottom) {
-        m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
-    }
-    else {
+    if (!m_collided_right_bottom) {
         m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
+    }
+    else if (!m_collided_left_bottom){
+        m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
     }
 }
 
@@ -145,12 +155,11 @@ void Entity::update(float delta_time, Entity *player, Entity *objects, int objec
     m_collided_bottom = false;
     m_collided_left = false;
     m_collided_right = false;
-    m_collided_left_bottom = false;
-    m_collided_right_bottom = false;
-    
+
     if (m_entity_type == ENEMY) {
         ai_activate(player);
     }
+
     
     // ––––– ANIMATION ––––– //
     if (m_animation_indices != NULL)
@@ -185,6 +194,7 @@ void Entity::update(float delta_time, Entity *player, Entity *objects, int objec
     m_position.y += m_velocity.y * delta_time;
     check_collision_y(objects, object_count, program);
     check_collision_y(map);
+    LOG(m_collided_right_bottom);
 
     // ––––– JUMPING ––––– //
     if (m_is_jumping)
@@ -204,6 +214,7 @@ void Entity::update(float delta_time, Entity *player, Entity *objects, int objec
     if (m_velocity.x > 0 && m_entity_type == PLAYER) {
         m_model_matrix = glm::scale(m_model_matrix, glm::vec3(-1.0f, 1.0f, 1.0f));
     }
+
 }
 
 void const Entity::check_collision_y(Map *map)
@@ -249,14 +260,14 @@ void const Entity::check_collision_y(Map *map)
         m_velocity.y = 0;
         m_collided_bottom = true;
     }
-    else if (map->is_solid(bottom_left, &penetration_x, &penetration_y) && m_velocity.y < 0)
+    if (map->is_solid(bottom_left, &penetration_x, &penetration_y) && m_velocity.y < 0)
     {
         m_position.y += penetration_y;
         m_velocity.y = 0;
         m_collided_bottom = true;
         m_collided_left_bottom = true;
     }
-    else if (map->is_solid(bottom_right, &penetration_x, &penetration_y) && m_velocity.y < 0)
+    if (map->is_solid(bottom_right, &penetration_x, &penetration_y) && m_velocity.y < 0)
     {
         m_position.y += penetration_y;
         m_velocity.y = 0;
@@ -300,13 +311,12 @@ void const Entity::check_collision_y(Entity* collidable_entities, int collidable
             float y_distance = fabs(m_position.y - collidable_entity->get_position().y);
             float y_overlap = fabs(y_distance - (m_height / 2.0f) - (collidable_entity->get_height() / 2.0f));
             if (y_overlap > 0) {
-                LOG("KILL");
                 m_enemies_defeated += 1;
                 collidable_entity->deactivate();
                 
                 if (m_enemies_defeated == 3) {
-                    draw_text(program, m_font_texture, "win", 5.0f, 1.0f, glm::vec3(0.0f));
-                    LOG("WIN");
+//                    draw_text(program, m_font_texture, "win", 5.0f, 1.0f, glm::vec3(0.0f));
+                    m_win_state = true;
                 }
             }
 //            if (m_velocity.y > 0) {
@@ -332,86 +342,25 @@ void const Entity::check_collision_x(Entity* collidable_entities, int collidable
         if (check_collision(collidable_entity))
         {
             float x_distance = fabs(m_position.x - collidable_entity->get_position().x);
-//            float x_overlap = fabs(x_distance - (m_width / 2.0f) - (collidable_entity->get_width() / 2.0f));
-//            if (m_velocity.x > 0) {
-//                m_position.x -= x_overlap;
-//                m_velocity.x = 0;
-//                m_collided_right = true;
-//            }
-//            else if (m_velocity.x < 0) {
-//                m_position.x += x_overlap;
-//                m_velocity.x = 0;
-//                m_collided_left = true;
-//            }
-            if (x_distance > 0) {
+            float x_overlap = fabs(x_distance - (m_width / 2.0f) - (collidable_entity->get_width() / 2.0f));
+            if (m_velocity.x > 0) {
+                m_position.x -= x_overlap;
+                m_velocity.x = 0;
+                m_collided_enemy_right = true;
+            }
+            else if (m_velocity.x < 0) {
+                m_position.x += x_overlap;
+                m_velocity.x = 0;
+                m_collided_enemy_left = true;
+            }
+            if (m_collided_enemy_left || m_collided_enemy_right) {
                 // FAIL
-                draw_text(program, m_font_texture, "fail", 10.0f, 1.0f, glm::vec3(0.0f));
-                LOG("FAIL");
+//                draw_text(program, m_font_texture, "fail", 1.0f, 1.0f, glm::vec3(1.0f, 3.0f, 0.0f));
+                deactivate();
+                m_lose_state = true;
             }
         }
     }
-}
-
-void Entity::draw_text(ShaderProgram *program, GLuint font_texture_id, std::string text, float screen_size, float spacing, glm::vec3 position)
-{
-    // Scale the size of the fontbank in the UV-plane
-    // We will use this for spacing and positioning
-    float width = 1.0f / FONTBANK_SIZE;
-    float height = 1.0f / FONTBANK_SIZE;
-
-    // Instead of having a single pair of arrays, we'll have a series of pairs—one for each character
-    // Don't forget to include <vector>!
-    std::vector<float> vertices;
-    std::vector<float> texture_coordinates;
-
-    // For every character...
-    for (int i = 0; i < text.size(); i++) {
-        // 1. Get their index in the spritesheet, as well as their offset (i.e. their position
-        //    relative to the whole sentence)
-        int spritesheet_index = (int) text[i];  // ascii value of character
-        float offset = (screen_size + spacing) * i;
-        
-        // 2. Using the spritesheet index, we can calculate our U- and V-coordinates
-        float u_coordinate = (float) (spritesheet_index % FONTBANK_SIZE) / FONTBANK_SIZE;
-        float v_coordinate = (float) (spritesheet_index / FONTBANK_SIZE) / FONTBANK_SIZE;
-
-        // 3. Inset the current pair in both vectors
-        vertices.insert(vertices.end(), {
-            offset + (-0.5f * screen_size), 0.5f * screen_size,
-            offset + (-0.5f * screen_size), -0.5f * screen_size,
-            offset + (0.5f * screen_size), 0.5f * screen_size,
-            offset + (0.5f * screen_size), -0.5f * screen_size,
-            offset + (0.5f * screen_size), 0.5f * screen_size,
-            offset + (-0.5f * screen_size), -0.5f * screen_size,
-        });
-
-        texture_coordinates.insert(texture_coordinates.end(), {
-            u_coordinate, v_coordinate,
-            u_coordinate, v_coordinate + height,
-            u_coordinate + width, v_coordinate,
-            u_coordinate + width, v_coordinate + height,
-            u_coordinate + width, v_coordinate,
-            u_coordinate, v_coordinate + height,
-        });
-    }
-
-    // 4. And render all of them using the pairs
-    glm::mat4 model_matrix = glm::mat4(1.0f);
-    model_matrix = glm::translate(model_matrix, position);
-    
-    program->set_model_matrix(model_matrix);
-    glUseProgram(program->get_program_id());
-    
-    glVertexAttribPointer(program->get_position_attribute(), 2, GL_FLOAT, false, 0, vertices.data());
-    glEnableVertexAttribArray(program->get_position_attribute());
-    glVertexAttribPointer(program->get_tex_coordinate_attribute(), 2, GL_FLOAT, false, 0, texture_coordinates.data());
-    glEnableVertexAttribArray(program->get_tex_coordinate_attribute());
-    
-    glBindTexture(GL_TEXTURE_2D, font_texture_id);
-    glDrawArrays(GL_TRIANGLES, 0, (int) (text.size() * 6));
-    
-    glDisableVertexAttribArray(program->get_position_attribute());
-    glDisableVertexAttribArray(program->get_tex_coordinate_attribute());
 }
 
 

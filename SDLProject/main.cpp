@@ -1,3 +1,13 @@
+/**
+* Author: Yini Zhang
+* Assignment: Rise of the AI
+* Date due: 2023-11-18, 11:59pm
+* I pledge that I have completed this assignment without
+* collaborating with anyone else, in conformance with the
+* NYU School of Engineering Policies and Procedures on
+* Academic Misconduct.
+**/
+
 #define GL_SILENCE_DEPRECATION
 #define STB_IMAGE_IMPLEMENTATION
 #define LOG(argument) std::cout << argument << '\n'
@@ -61,6 +71,8 @@ const int NUMBER_OF_TEXTURES = 1;
 const GLint LEVEL_OF_DETAIL  = 0;
 const GLint TEXTURE_BORDER   = 0;
 
+const int FONTBANK_SIZE = 16;
+
 
 // ––––– GLOBAL VARIABLES ––––– //
 GameState g_state;
@@ -77,11 +89,11 @@ float g_accumulator = 0.0f;
 // —————— MAP ——————
 unsigned int LEVEL_1_DATA[] =
 {
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    5, 6, 6, 7, 7, 0, 0, 0, 0, 1, 1, 1, 1, 1,
-    25, 26, 26, 27, 0, 8, 13, 15, 1, 2, 2, 2, 2, 2,
-    29, 30, 30, 31, 0, 0, 2, 29, 31, 2, 2, 2, 2, 2
+    5, 6, 6, 6, 3, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    25, 26, 26, 27, 0, 0, 9, 14, 15, 0, 0, 0, 0, 0,
+    29, 30, 30, 31, 0, 0, 0, 29, 31, 0, 0, 0, 0, 0
 };
 
 // ––––– GENERAL FUNCTIONS ––––– //
@@ -111,6 +123,68 @@ GLuint load_texture(const char* filepath)
     stbi_image_free(image);
     
     return textureID;
+}
+
+void draw_text(ShaderProgram *program, GLuint font_texture_id, std::string text, float screen_size, float spacing, glm::vec3 position)
+{
+    // Scale the size of the fontbank in the UV-plane
+    // We will use this for spacing and positioning
+    float width = 1.0f / FONTBANK_SIZE;
+    float height = 1.0f / FONTBANK_SIZE;
+
+    // Instead of having a single pair of arrays, we'll have a series of pairs—one for each character
+    // Don't forget to include <vector>!
+    std::vector<float> vertices;
+    std::vector<float> texture_coordinates;
+
+    // For every character...
+    for (int i = 0; i < text.size(); i++) {
+        // 1. Get their index in the spritesheet, as well as their offset (i.e. their position
+        //    relative to the whole sentence)
+        int spritesheet_index = (int) text[i];  // ascii value of character
+        float offset = (screen_size + spacing) * i;
+        
+        // 2. Using the spritesheet index, we can calculate our U- and V-coordinates
+        float u_coordinate = (float) (spritesheet_index % FONTBANK_SIZE) / FONTBANK_SIZE;
+        float v_coordinate = (float) (spritesheet_index / FONTBANK_SIZE) / FONTBANK_SIZE;
+
+        // 3. Inset the current pair in both vectors
+        vertices.insert(vertices.end(), {
+            offset + (-0.5f * screen_size), 0.5f * screen_size,
+            offset + (-0.5f * screen_size), -0.5f * screen_size,
+            offset + (0.5f * screen_size), 0.5f * screen_size,
+            offset + (0.5f * screen_size), -0.5f * screen_size,
+            offset + (0.5f * screen_size), 0.5f * screen_size,
+            offset + (-0.5f * screen_size), -0.5f * screen_size,
+        });
+
+        texture_coordinates.insert(texture_coordinates.end(), {
+            u_coordinate, v_coordinate,
+            u_coordinate, v_coordinate + height,
+            u_coordinate + width, v_coordinate,
+            u_coordinate + width, v_coordinate + height,
+            u_coordinate + width, v_coordinate,
+            u_coordinate, v_coordinate + height,
+        });
+    }
+
+    // 4. And render all of them using the pairs
+    glm::mat4 model_matrix = glm::mat4(1.0f);
+    model_matrix = glm::translate(model_matrix, position);
+    
+    program->set_model_matrix(model_matrix);
+    glUseProgram(program->get_program_id());
+    
+    glVertexAttribPointer(program->get_position_attribute(), 2, GL_FLOAT, false, 0, vertices.data());
+    glEnableVertexAttribArray(program->get_position_attribute());
+    glVertexAttribPointer(program->get_tex_coordinate_attribute(), 2, GL_FLOAT, false, 0, texture_coordinates.data());
+    glEnableVertexAttribArray(program->get_tex_coordinate_attribute());
+    
+    glBindTexture(GL_TEXTURE_2D, font_texture_id);
+    glDrawArrays(GL_TRIANGLES, 0, (int) (text.size() * 6));
+    
+    glDisableVertexAttribArray(program->get_position_attribute());
+    glDisableVertexAttribArray(program->get_tex_coordinate_attribute());
 }
 
 void initialise()
@@ -156,7 +230,6 @@ void initialise()
     for (int i = 0; i < ENEMY_COUNT; i++)
     {
         g_state.enemies[i].m_texture_id = enemy_texture_id;
-        g_state.enemies[i].set_position(glm::vec3(i+1.0f, 1.0f, 0.0f));
         g_state.enemies[i].set_entity_type(ENEMY);
         g_state.enemies[i].set_height(0.9f);
         g_state.enemies[i].set_width(0.7f);
@@ -179,23 +252,22 @@ void initialise()
         g_state.enemies[i].set_speed(0.75f);
         g_state.enemies[i].set_acceleration(glm::vec3(0.0f, -4.905f, 0.0f));
         
-        g_state.enemies[i].set_ai_type(JUMPER);
-//        g_state.enemies[i].set_ai_state(IDLE);
+//        g_state.enemies[i].set_font_texture(load_texture(FONT_TILESET_FILEPATH));
+        if (i == 0) {
+            g_state.enemies[i].set_position(glm::vec3(2.0f, 1.0f, 0.0f));
+            g_state.enemies[i].set_ai_type(WALKER);
+        }
+        else if (i == 1) {
+            g_state.enemies[i].set_position(glm::vec3(4.0f, 1.0f, 0.0f));
+            g_state.enemies[i].set_ai_type(JUMPER);
+        }
+        else if (i == 2) {
+            g_state.enemies[i].set_position(glm::vec3(7.0f, 1.0f, 0.0f));
+            g_state.enemies[i].set_ai_type(GUARD);
+            g_state.enemies[i].set_ai_state(IDLE);
+        }
         
-        g_state.enemies[i].set_font_texture(load_texture(FONT_TILESET_FILEPATH));
     }
-//
-//    g_state.platforms[PLATFORM_COUNT - 1].m_texture_id = platform_texture_id;
-//    g_state.platforms[PLATFORM_COUNT - 1].set_position(glm::vec3(-1.5f, -2.35f, 0.0f));
-//    g_state.platforms[PLATFORM_COUNT - 1].set_width(0.4f);
-//    g_state.platforms[PLATFORM_COUNT - 1].set_entity_type(PLATFORM);
-//    g_state.platforms[PLATFORM_COUNT - 1].update(0.0f, g_state.player, NULL, 0);
-//
-//    g_state.platforms[PLATFORM_COUNT - 2].m_texture_id = platform_texture_id;
-//    g_state.platforms[PLATFORM_COUNT - 2].set_position(glm::vec3(2.5f, -2.5f, 0.0f));
-//    g_state.platforms[PLATFORM_COUNT - 2].set_width(0.4f);
-//    g_state.platforms[PLATFORM_COUNT - 2].set_entity_type(PLATFORM);
-//    g_state.platforms[PLATFORM_COUNT - 2].update(0.0f, g_state.player, NULL, 0);
     
     // ––––– PLAYER (GEORGE) ––––– //
     // Existing
@@ -320,18 +392,29 @@ void update()
     
     // —————— MOVE CAMERA ——————
     g_view_matrix = glm::mat4(1.0f);
+    g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-4.5f, 0.0f, 0.0f));
     
-    g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-5.0f, 0.0f, 0.0f));
 }
 
 void render()
 {
+    g_program.set_view_matrix(g_view_matrix);
+
     glClear(GL_COLOR_BUFFER_BIT);
     
     g_state.map->render(&g_program);
     g_state.player->render(&g_program);
-    
+        
     for (int i = 0; i < ENEMY_COUNT; i++) g_state.enemies[i].render(&g_program);
+    
+    if (g_state.player->m_lose_state) {
+        draw_text(&g_program, load_texture(FONT_TILESET_FILEPATH), "You", 2.0f, 0.0f, glm::vec3(1.0f, 1.3f, 0.0f));
+        draw_text(&g_program, load_texture(FONT_TILESET_FILEPATH), "Lose", 2.0f, 0.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+    }
+    else if (g_state.player->m_win_state) {
+        draw_text(&g_program, load_texture(FONT_TILESET_FILEPATH), "You", 2.0f, 0.0f, glm::vec3(1.4f, 1.3f, 0.0f));
+        draw_text(&g_program, load_texture(FONT_TILESET_FILEPATH), "Win", 2.0f, 0.0f, glm::vec3(1.4f, 0.0f, 0.0f));
+    }
     
     SDL_GL_SwapWindow(g_display_window);
 }

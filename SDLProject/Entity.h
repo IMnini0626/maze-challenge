@@ -1,3 +1,13 @@
+/**
+* Author: Yini Zhang
+* Assignment: Rise of the AI
+* Date due: 2023-11-18, 11:59pm
+* I pledge that I have completed this assignment without
+* collaborating with anyone else, in conformance with the
+* NYU School of Engineering Policies and Procedures on
+* Academic Misconduct.
+**/
+
 #include "Map.h"
 
 enum EntityType { PLATFORM, PLAYER, ENEMY };
@@ -71,6 +81,11 @@ public:
     bool m_collided_right = false;
     bool m_collided_left_bottom = false;
     bool m_collided_right_bottom = false;
+    bool m_collided_enemy_right = false;
+    bool m_collided_enemy_left = false;
+    
+    bool m_win_state = false;
+    bool m_lose_state = false;
     
     //
     float m_time_passed = 0;
@@ -78,7 +93,6 @@ public:
     
     // FONT
     int FONTBANK_SIZE = 16;
-    GLuint m_font_texture;
 
     GLuint    m_texture_id;
 
@@ -142,5 +156,4 @@ public:
     void const set_acceleration(glm::vec3 new_acceleration) { m_acceleration = new_acceleration;    };
     void const set_width(float new_width)                   { m_width = new_width;                  };
     void const set_height(float new_height)                 { m_height = new_height;                };
-    void const set_font_texture(GLuint new_font_texture)    { m_font_texture = new_font_texture;    };
 };
