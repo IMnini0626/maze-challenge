@@ -40,10 +40,13 @@ public:
     void set_projection_matrix(const glm::mat4 &matrix);
     void set_view_matrix(const glm::mat4 &matrix);
     void set_colour(float red, float green, float blue, float alpha);
+    void set_light_position(glm::vec3 position);
     
     GLuint const get_program_id()               const { return m_program_id;          };
     GLuint const get_position_attribute()       const { return m_position_attribute;  };
     GLuint const get_tex_coordinate_attribute() const { return m_tex_coord_attribute; };
+    GLuint light_position_uniform;
     
     void set_program_id(GLuint program_id)                         { m_program_id = program_id;                   };
+
 };

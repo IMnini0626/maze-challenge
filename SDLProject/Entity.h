@@ -7,35 +7,26 @@
 * NYU School of Engineering Policies and Procedures on
 * Academic Misconduct.
 **/
-
+#pragma once
 #include "Map.h"
 
-enum EntityType { PLATFORM, PLAYER, ENEMY };
-enum AIType     { WALKER, GUARD, JUMPER     };
-enum AIState    { WALKING, IDLE, ATTACKING  };
+enum EntityType { PLATFORM, PLAYER, ENEMY, GOAL };
+enum AIType     { WALKER1, WALKER2, CHASER };
+enum AIState    { WALKING, IDLE, ATTACKING };
 
 class Entity
 {
 private:
     bool m_is_active = true;
 
-    // ––––– ANIMATION ––––– //
-    int* m_animation_right = NULL, // move to the right
-        * m_animation_left = NULL, // move to the left
-        * m_animation_up   = NULL, // move upwards
-        * m_animation_down = NULL; // move downwards
-
-    // ––––– PHYSICS (GRAVITY) ––––– //
+    // ––––– PHYSICS ––––– //
     glm::vec3 m_position;
     glm::vec3 m_velocity;
-    glm::vec3 m_acceleration;
 
     // ————— TRANSFORMATIONS ————— //
     float     m_speed;
     glm::vec3 m_movement;
-    glm::mat4 m_model_matrix;
-
-
+    
     // ————— ENEMY AI ————— //
     EntityType m_entity_type;
     AIType     m_ai_type;
@@ -46,33 +37,21 @@ private:
 
 
 public:
+    glm::mat4 m_model_matrix;
+    
     // ————— STATIC VARIABLES ————— //
     static const int SECONDS_PER_FRAME = 4;
-    static const int    LEFT = 0,
-                        RIGHT = 1,
-                        UP = 2,
-                        DOWN = 3;
 
     // ————— ANIMATION ————— //
-    int** m_walking = new int* [4]
-        {
-            m_animation_left,
-            m_animation_right,
-            m_animation_up,
-            m_animation_down
-        };
+    int* m_animation = NULL;
 
     int m_animation_frames = 0,
         m_animation_index = 0,
         m_animation_cols = 0,
         m_animation_rows = 0;
 
-    int*    m_animation_indices = NULL;
+    int*    m_animation_indices = m_animation;
     float   m_animation_time = 0.0f;
-
-    // ––––– PHYSICS (JUMPING) ––––– //
-    bool  m_is_jumping = false;
-    float m_jumping_power = 0;
 
     // ––––– PHYSICS (COLLISIONS) ––––– //
     bool m_collided_top = false;
@@ -81,13 +60,20 @@ public:
     bool m_collided_right = false;
     bool m_collided_left_bottom = false;
     bool m_collided_right_bottom = false;
-    bool m_collided_enemy_right = false;
-    bool m_collided_enemy_left = false;
+    bool m_collided_enemy = false;
+    bool m_collided_goal = false;
+    
+    // —————— LEVELS ——————
+    bool m_is_levelc = false;
+    
+    // —————— GOALS ——————
+    int m_current_goal_count = 0;
     
     bool m_win_state = false;
     bool m_lose_state = false;
+    bool m_pass_state = false;
+    bool m_cost_life = false;
     
-    //
     float m_time_passed = 0;
     int m_enemies_defeated = 0;
     
@@ -101,19 +87,17 @@ public:
     ~Entity();
 
     void draw_sprite_from_texture_atlas(ShaderProgram* program, GLuint texture_id, int index);
-//    void update(float delta_time, Entity* player, Entity* collidable_entities, int collidable_entity_count);
     void draw_text(ShaderProgram *program, GLuint font_texture_id, std::string text, float screen_size, float spacing, glm::vec3 position);
     
     // Overload update for MAP
-    void update(float delta_time, Entity *player, Entity *objects, int object_count, Map *map, ShaderProgram* program);
+    void update(float delta_time, Entity *player, Entity *objects, int object_count, Map *map);
 
     void render(ShaderProgram* program);
     
-
     bool const check_collision(Entity* other) const;
     // Collision for entity
-    void const check_collision_y(Entity* collidable_entities, int collidable_entity_count, ShaderProgram *program);
-    void const check_collision_x(Entity* collidable_entities, int collidable_entity_count, ShaderProgram *program);
+    void const check_collision_y(Entity* collidable_entities, int collidable_entity_count);
+    void const check_collision_x(Entity* collidable_entities, int collidable_entity_count);
     // Overloading collision for map
     void const check_collision_y(Map *map);
     void const check_collision_x(Map *map);
@@ -124,9 +108,9 @@ public:
     void move_down()    { m_movement.y = -1.0f; };
 
     void ai_activate(Entity* player);
-    void ai_walk();
-    void ai_guard(Entity* player);
-    void ai_jump();
+    void ai_walk1();
+    void ai_walk2();
+    void ai_chase(Entity* player);
 
     void activate() { m_is_active = true; };
     void deactivate() { m_is_active = false; };
@@ -138,8 +122,6 @@ public:
     glm::vec3  const get_position()       const { return m_position;        };
     glm::vec3  const get_movement()       const { return m_movement;        };
     glm::vec3  const get_velocity()       const { return m_velocity;        };
-    glm::vec3  const get_acceleration()   const { return m_acceleration;    };
-    float      const get_jumping_power()  const { return m_jumping_power;   };
     float      const get_speed()          const { return m_speed;           };
     int        const get_width()          const { return m_width;           };
     int        const get_height()         const { return m_height;          };
@@ -152,8 +134,6 @@ public:
     void const set_movement(glm::vec3 new_movement)         { m_movement = new_movement;            };
     void const set_velocity(glm::vec3 new_velocity)         { m_velocity = new_velocity;            };
     void const set_speed(float new_speed)                   { m_speed = new_speed;                  };
-    void const set_jumping_power(float new_jumping_power)   { m_jumping_power = new_jumping_power;  };
-    void const set_acceleration(glm::vec3 new_acceleration) { m_acceleration = new_acceleration;    };
     void const set_width(float new_width)                   { m_width = new_width;                  };
     void const set_height(float new_height)                 { m_height = new_height;                };
 };

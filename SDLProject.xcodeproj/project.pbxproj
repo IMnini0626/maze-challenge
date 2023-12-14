@@ -7,7 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4D4F284F2B2A81A3000F08A7 /* End.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D4F284E2B2A81A3000F08A7 /* End.cpp */; };
+		4D6AB9D42B169B4F00670CA3 /* Utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D6AB9D32B169B4F00670CA3 /* Utility.cpp */; };
+		4D6AB9DA2B18FD4E00670CA3 /* LevelA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D6AB9D72B18FD4E00670CA3 /* LevelA.cpp */; };
+		4D6AB9DB2B18FD4E00670CA3 /* Scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D6AB9D82B18FD4E00670CA3 /* Scene.cpp */; };
+		4D6AB9E12B1C123A00670CA3 /* Start.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D6AB9E02B1C123A00670CA3 /* Start.cpp */; };
 		4D762C112B093402005AE485 /* Map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D762C0F2B093402005AE485 /* Map.cpp */; };
+		4DE424582B23C05300467E3B /* LevelB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DE424562B23C05200467E3B /* LevelB.cpp */; };
+		4DE4245B2B251BD000467E3B /* LevelC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DE4245A2B251BD000467E3B /* LevelC.cpp */; };
+		4DE4245E2B26C54800467E3B /* Effects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DE4245C2B26C54800467E3B /* Effects.cpp */; };
 		4DE4A28B2AF948FE00047642 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DE4A28A2AF948FE00047642 /* Entity.cpp */; };
 		4DE4A28D2AFAB07E00047642 /* assets in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4DE4A28C2AFAB07E00047642 /* assets */; };
 		DBDF1B532323DE3F007CECB1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DBDF1B522323DE3F007CECB1 /* main.cpp */; };
@@ -35,8 +43,24 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4D4F284D2B2A81A3000F08A7 /* End.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = End.h; sourceTree = "<group>"; };
+		4D4F284E2B2A81A3000F08A7 /* End.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = End.cpp; sourceTree = "<group>"; };
+		4D6AB9D32B169B4F00670CA3 /* Utility.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Utility.cpp; sourceTree = "<group>"; };
+		4D6AB9D52B169B9100670CA3 /* Utility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utility.h; sourceTree = "<group>"; };
+		4D6AB9D62B18FD4E00670CA3 /* Scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Scene.h; sourceTree = "<group>"; };
+		4D6AB9D72B18FD4E00670CA3 /* LevelA.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LevelA.cpp; sourceTree = "<group>"; };
+		4D6AB9D82B18FD4E00670CA3 /* Scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Scene.cpp; sourceTree = "<group>"; };
+		4D6AB9D92B18FD4E00670CA3 /* LevelA.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LevelA.h; sourceTree = "<group>"; };
+		4D6AB9DF2B1C123A00670CA3 /* Start.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Start.h; sourceTree = "<group>"; };
+		4D6AB9E02B1C123A00670CA3 /* Start.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Start.cpp; sourceTree = "<group>"; };
 		4D762C0F2B093402005AE485 /* Map.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Map.cpp; sourceTree = "<group>"; };
 		4D762C122B093442005AE485 /* Map.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Map.h; sourceTree = "<group>"; };
+		4DE424562B23C05200467E3B /* LevelB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LevelB.cpp; sourceTree = "<group>"; };
+		4DE424572B23C05200467E3B /* LevelB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LevelB.h; sourceTree = "<group>"; };
+		4DE424592B251BD000467E3B /* LevelC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LevelC.h; sourceTree = "<group>"; };
+		4DE4245A2B251BD000467E3B /* LevelC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LevelC.cpp; sourceTree = "<group>"; };
+		4DE4245C2B26C54800467E3B /* Effects.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Effects.cpp; sourceTree = "<group>"; };
+		4DE4245D2B26C54800467E3B /* Effects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Effects.h; sourceTree = "<group>"; };
 		4DE4A2872AF948E800047642 /* Entity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Entity.h; sourceTree = "<group>"; };
 		4DE4A28A2AF948FE00047642 /* Entity.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Entity.cpp; sourceTree = "<group>"; };
 		4DE4A28C2AFAB07E00047642 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = "<group>"; };
@@ -101,6 +125,22 @@
 				4DE4A28A2AF948FE00047642 /* Entity.cpp */,
 				4D762C0F2B093402005AE485 /* Map.cpp */,
 				4D762C122B093442005AE485 /* Map.h */,
+				4D6AB9D32B169B4F00670CA3 /* Utility.cpp */,
+				4D6AB9D52B169B9100670CA3 /* Utility.h */,
+				4D6AB9D82B18FD4E00670CA3 /* Scene.cpp */,
+				4D6AB9D62B18FD4E00670CA3 /* Scene.h */,
+				4D6AB9E02B1C123A00670CA3 /* Start.cpp */,
+				4D6AB9DF2B1C123A00670CA3 /* Start.h */,
+				4D4F284E2B2A81A3000F08A7 /* End.cpp */,
+				4D4F284D2B2A81A3000F08A7 /* End.h */,
+				4D6AB9D72B18FD4E00670CA3 /* LevelA.cpp */,
+				4D6AB9D92B18FD4E00670CA3 /* LevelA.h */,
+				4DE424562B23C05200467E3B /* LevelB.cpp */,
+				4DE424572B23C05200467E3B /* LevelB.h */,
+				4DE4245A2B251BD000467E3B /* LevelC.cpp */,
+				4DE424592B251BD000467E3B /* LevelC.h */,
+				4DE4245C2B26C54800467E3B /* Effects.cpp */,
+				4DE4245D2B26C54800467E3B /* Effects.h */,
 			);
 			path = SDLProject;
 			sourceTree = "<group>";
@@ -174,9 +214,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				DBDF1B532323DE3F007CECB1 /* main.cpp in Sources */,
+				4D6AB9DB2B18FD4E00670CA3 /* Scene.cpp in Sources */,
 				4DE4A28B2AF948FE00047642 /* Entity.cpp in Sources */,
+				4D4F284F2B2A81A3000F08A7 /* End.cpp in Sources */,
+				4D6AB9D42B169B4F00670CA3 /* Utility.cpp in Sources */,
+				4DE4245E2B26C54800467E3B /* Effects.cpp in Sources */,
+				4DE4245B2B251BD000467E3B /* LevelC.cpp in Sources */,
 				4D762C112B093402005AE485 /* Map.cpp in Sources */,
+				4D6AB9DA2B18FD4E00670CA3 /* LevelA.cpp in Sources */,
+				4DE424582B23C05300467E3B /* LevelB.cpp in Sources */,
 				DBDF1B5E2323DE8D007CECB1 /* ShaderProgram.cpp in Sources */,
+				4D6AB9E12B1C123A00670CA3 /* Start.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
